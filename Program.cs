@@ -29,9 +29,16 @@ namespace WordGuess
                     string modifiedWord = "";
                     string initialWord = "";
                     for(int i = 0; i<=(pickedWord.Length); i++)
-                    {   
-                        char selectedLetter = Convert.ToChar(Console.ReadLine());
-                                              
+                    {             
+                        string selectedLetterString = Console.ReadLine();
+                        int t = Convert.ToString(selectedLetterString).Length;
+                        
+                        if (t > 1 )
+                        {
+                             Console.WriteLine("Incorrect Entry");       
+                        } 
+                        else{                            
+                            char selectedLetter = Convert.ToChar(selectedLetterString);
                             if (!WordCollection.FindLetterInWord(selectedLetter, pickedWord)) 
                                 {
                                     Console.WriteLine("Missed....");
@@ -55,7 +62,7 @@ namespace WordGuess
                                     Console.WriteLine(modifiedWord);
                                 }
                                 }
-                                
+                        }      
                     NoOfTriesLeft((pickedWord.Length)-i);                   
 
                     }// end for
