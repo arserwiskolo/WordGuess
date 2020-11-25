@@ -1,5 +1,7 @@
 ﻿using System;
-using Word;
+using System.Collections.Generic;
+using WordGuess.Models;
+using WordGuess.Storage;
 
 namespace WordGuess
 {
@@ -7,97 +9,128 @@ namespace WordGuess
     {
         static void Main(string[] args)
         {            
-            Console.WriteLine("Welcome to the word guessing game. Please type your FIRST name: ");
-            string nameInput = Console.ReadLine();
-            PrintGreeting(nameInput);
+            var wordStorage = new WordStorageList();
+            var playerStorage = new PlayerStorageList();
+            var wordGuessSystem = new WordGuessSystem(wordStorage, playerStorage);
+
+            //Console.WriteLine("Welcome to the word guessing game. Please type your FIRST name: ");
+            //string nameInput = Console.ReadLine();
+            //PrintGreeting(nameInput);
            
             while(true){    
-                Console.WriteLine("q - quit; p-play");
+                Console.WriteLine("\nPlease select an option:\n" +
+                    "- p: play\n" + 
+                    "- q: quit\n" +
+                    "- t: print All\n"
+
+                );
                 string userInput = Console.ReadLine();  
-
-                if(userInput.ToUpper()=="P"){
-                
-                    Console.WriteLine("Pick number from 1-12");
-                    int numberInput = Convert.ToInt32(Console.ReadLine());
-                   
-                    string pickedWord = Convert.ToString(WordCollection.PickRandomWordStartsWithLetter(numberInput)); 
-                   
-                    Console.WriteLine(WordCollection.HideLetters(numberInput));
-
-                    AskForFirstLetter(pickedWord.Length);
+                if(userInput.ToUpper() == "T")
+                {
                     
-                    string modifiedWord = "";
-                    string initialWord = "";
-                    for(int i = 0; i<=(pickedWord.Length); i++)
-                    {             
-                        string selectedLetterString = Console.ReadLine();
-                        int t = Convert.ToString(selectedLetterString).Length;
-                        
-                        if (t > 1 )
-                        {
-                             Console.WriteLine("Incorrect Entry");       
-                        } 
-                        else{                            
-                            char selectedLetter = Convert.ToChar(selectedLetterString);
-                            if (!WordCollection.FindLetterInWord(selectedLetter, pickedWord)) 
-                                {
-                                    Console.WriteLine("Missed....");
-                                }
-                            else 
-                                {
-                                    Console.WriteLine("CONGRATS! You found a letter!");
+                    try {
 
-                                if (modifiedWord==""){
-                                    initialWord = pickedWord;
-                                    modifiedWord = WordCollection.exposeLetters(selectedLetter, pickedWord);
-                                    Console.WriteLine(modifiedWord);
-                                    }
-                                else 
-                                {
-                                    modifiedWord = WordCollection.exposeLetters(selectedLetter, pickedWord, modifiedWord);
-                                    if(modifiedWord==pickedWord){
-                                        Console.WriteLine("WOW....You have found a word. CONGRATS!"  );
-                                        i=(pickedWord.Length);
-                                    }
-                                    Console.WriteLine(modifiedWord);
-                                }
-                                }
-                        }      
-                    NoOfTriesLeft((pickedWord.Length)-i);                   
-
-                    }// end for
-                                       
-                    if (EndOftheRound() == "N") {
-                        break;
+                        List<Word> results = wordGuessSystem.GetAllWords();
+                        foreach (var word in results) {
+                            Console.WriteLine(word.ToString());
                         } 
+                    } catch (Exception e) {
+                        Console.WriteLine($"Error: {e.Message}");
                     }
-                if(userInput.ToUpper() == "Q"){
-                    break;
-                }               
+                    
+                }
 
+                if(userInput.ToUpper()=="P"){                
+                    try{  
+                        int numberInput = wordGuessSystem.RandomNumber(0, 12);
+                        var mainList = wordGuessSystem.GetAllWords(); 
+                        string selectedWord = Convert.ToString(WordGuessSystem.PickRandomWordStartsWithLetter(numberInput, mainList)); 
+                        string initialWord = string.Empty;
+                        string modifiedWord = string.Empty;
+                        Console.WriteLine("\nYour WORD is as follows :\n" + 
+                        WordGuessSystem.HideLetters(numberInput, mainList));
+                        
+                        AskForFirstLetter(selectedWord.Length);
+                        
+                        for(int i = 0; i<=(selectedWord.Length); i++)
+                            {             
+                                string typedLetterString = Console.ReadLine();
+                                int letterInputLength = Convert.ToString(typedLetterString).Length;
+                                
+                                if (letterInputLength > 1 )
+                                {
+                                    Console.WriteLine("Incorrect Entry, too many characters!!!\n");       
+                                } 
+                                else{                            
+                                    char typedLetter = Convert.ToChar(typedLetterString);
+                                    if (!WordGuessSystem.FindLetterInWord(typedLetter, selectedWord)) 
+                                        {
+                                            Console.WriteLine("Missed....");
+                                        }
+                                    else 
+                                        {
+                                            Console.WriteLine("\n CONGRATS! You found a letter!\n");
+
+                                        if (modifiedWord=="")
+                                            {
+                                                initialWord = selectedWord;
+                                                modifiedWord = WordGuessSystem.exposeLetters(typedLetter, selectedWord);
+                                                Console.WriteLine(modifiedWord);
+                                            }
+                                        else 
+                                            {
+                                                modifiedWord = WordGuessSystem.exposeLetters(typedLetter, selectedWord, modifiedWord);
+                                                if(modifiedWord==selectedWord){
+                                                    Console.WriteLine("\n WOW....You have found a word. CONGRATS!\n");
+                                                    i=(selectedWord.Length);
+                                                }
+                                                Console.WriteLine("The word is: " + modifiedWord);
+                                            }
+                                        }// end second else
+                                }      
+                            NoOfTriesLeft((selectedWord.Length)-i);                   
+
+                            }// end for
+                                            
+                            if (EndOftheRound() == "N") 
+                                {
+                                    break;
+                                } 
+                    }
+                        catch (Exception e) 
+                        {
+                            Console.WriteLine($"Error: {e.Message}");
+                        }
+
+                    }// end first if                   
+
+                if(userInput.ToUpper() == "Q")
+                {
+                    break;
+                }
+    
             } // end while 
             Console.WriteLine("See you later!");
-        }
+        }// end Main
 
 
-        //methods
+        //printing methods
         public static void PrintGreeting(string fname){
-            Console.WriteLine("Hi " + fname);
-            Console.WriteLine("YOU have few words for you to guess. Today's category is:  PEOPLE FIRST NAMES");
+            Console.WriteLine($"Hi {fname}, YOU have few words for you to guess. Today's category is:  PEOPLE's FIRST NAMES.");
    
         }
 
         public static void AskForFirstLetter(int noOfTries){
-            Console.WriteLine("What Letter this word is missing? You have " + noOfTries + " guesses. Please type only one letter: ");
+            Console.WriteLine($"\n Take a guess what Letter this word is missing. You have {noOfTries} guesses. Please type only one letter: ");
         }
 
         public static string EndOftheRound(){
-            Console.WriteLine("Round is over, Do you want to play again: Y- yes, any letter - No. Waiting for your input.....");
+            Console.WriteLine("Round is over, press any letter...Waiting for your input.....");
             return Console.ReadLine().ToUpper();
         }
 
         public static void NoOfTriesLeft(int noofTries){
-            Console.WriteLine("You have " + noofTries + " tries left" );
+            Console.WriteLine("\n You have " + noofTries + " tries left. \n" );
         }
 
         
