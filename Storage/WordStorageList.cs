@@ -28,19 +28,6 @@ namespace WordGuess.Storage
             return _wordList;
         }
 
-        // public Word GetById(long id){
-        //     var word = _wordList.Find(x =>x.Id == id);
-        //     if(word == null){
-        //         throw new Exception($"Word {id} does not exist!");
-        //     }
-        //     return word;
-        // }
-
-
-
-
-
-
         }
 }
 

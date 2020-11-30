@@ -7,7 +7,7 @@ namespace WordGuess
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {            
             var wordStorage = new WordStorageList();
             var playerStorage = new PlayerStorageList();
@@ -42,13 +42,20 @@ namespace WordGuess
 
                 if(userInput.ToUpper()=="P"){                
                     try{  
-                        int numberInput = wordGuessSystem.RandomNumber(0, 12);
+                        int numberInput = wordGuessSystem.RandomNumber(1, 12);
                         var mainList = wordGuessSystem.GetAllWords(); 
-                        string selectedWord = Convert.ToString(WordGuessSystem.PickRandomWordStartsWithLetter(numberInput, mainList)); 
+                        WordGuessSystem selectedWordClass = new WordGuessSystem(wordStorage, playerStorage);// need to instance it due to static method 
+                        Word selectedWordObject = selectedWordClass.PickRandomWordStartsWithLetter(numberInput, mainList);
+                        var selectedWord = selectedWordObject.Value; 
+
+                        string selectedWordString = Convert.ToString(selectedWord);
+                        Word initialWordObj =  new Word();
                         string initialWord = string.Empty;
+                        Word modifiedWordObj = new Word();
                         string modifiedWord = string.Empty;
+                        
                         Console.WriteLine("\nYour WORD is as follows :\n" + 
-                        WordGuessSystem.HideLetters(numberInput, mainList));
+                        selectedWordClass.HideLetters(numberInput, mainList).Value);
                         
                         AskForFirstLetter(selectedWord.Length);
                         
@@ -63,7 +70,7 @@ namespace WordGuess
                                 } 
                                 else{                            
                                     char typedLetter = Convert.ToChar(typedLetterString);
-                                    if (!WordGuessSystem.FindLetterInWord(typedLetter, selectedWord)) 
+                                    if (!selectedWordClass.FindLetterInWord(typedLetter, selectedWordObject)) 
                                         {
                                             Console.WriteLine("Missed....");
                                         }
@@ -71,15 +78,15 @@ namespace WordGuess
                                         {
                                             Console.WriteLine("\n CONGRATS! You found a letter!\n");
 
-                                        if (modifiedWord=="")
+                                        if (modifiedWordObj.Value=="")
                                             {
-                                                initialWord = selectedWord;
-                                                modifiedWord = WordGuessSystem.exposeLetters(typedLetter, selectedWord);
-                                                Console.WriteLine(modifiedWord);
+                                                initialWordObj = selectedWordObject;
+                                                modifiedWordObj = selectedWordClass.exposeLetters(typedLetter, selectedWordObject);
+                                                Console.WriteLine(modifiedWordObj.Value);
                                             }
                                         else 
                                             {
-                                                modifiedWord = WordGuessSystem.exposeLetters(typedLetter, selectedWord, modifiedWord);
+                                                modifiedWord = selectedWordClass.exposeLetters(typedLetter, selectedWord, modifiedWord);
                                                 if(modifiedWord==selectedWord){
                                                     Console.WriteLine("\n WOW....You have found a word. CONGRATS!\n");
                                                     i=(selectedWord.Length);

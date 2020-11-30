@@ -78,20 +78,44 @@ namespace WordGuess
             }
         }//
 
-        public static string PickRandomWordStartsWithLetter(int wordIndex, List<Word> words ){
-            string selectedWord=string.Empty;
+        public Word PickRandomWordStartsWithLetter(int wordIndex, List<Word> words ){
+            string selectedWordCategory=string.Empty;
+            string seletedWordValue=string.Empty;
+            Word selected = new Word();// new code
             for(int i=0; i<words.Count; i++)
                 {
                 Word nextWord = words[i];
-                if(i==wordIndex){selectedWord = nextWord.Value;}
+                if(i==wordIndex){selectedWordCategory = nextWord.Category;seletedWordValue = nextWord.Value;
+                selected.Category = selectedWordCategory;
+                selected.Value = seletedWordValue;
                 }
-            return selectedWord;
+                }
+                return  selected;
+            //return selectedWord;
         }//
 
-        public static string HideLetters(int wordIndex, List<Word> words)
+        // public string PickRandomWordStartsWithLetter(int wordIndex, List<Word> words ){
+        //     string selectedWordCategory=string.Empty;
+          
+        //     for(int i=0; i<words.Count; i++)
+        //         {
+        //         Word nextWord = words[i];
+        //         if(i==wordIndex){selectedWord = nextWord.Value;}
+        //         }
+                 
+        //     return selectedWord;
+        // }//
+
+        public Word HideLetters(int wordIndex, List<Word> words)
         {
-            string selectedWord = PickRandomWordStartsWithLetter(wordIndex, words);
-            char [] input = selectedWord.ToCharArray();
+            Word selectedWord = PickRandomWordStartsWithLetter(wordIndex, words);
+            selectedWord.InitialWord = selectedWord.Value;
+
+            string selectedWordString = selectedWord.Value;
+            Word wordHidden = new Word();
+            wordHidden.Category = selectedWord.Category;
+
+            char [] input = selectedWordString.ToCharArray();
             int maxIndex = input.Length;
             char[] charoutput = new char[maxIndex];
             string output = string.Empty;
@@ -100,12 +124,52 @@ namespace WordGuess
                 else if(i==(maxIndex-1)){charoutput[i] = input[i];}
                 else{charoutput[i] = Convert.ToChar("-");}                
             output = string.Join("", charoutput);
+            wordHidden.Value = output;
+            wordHidden.InitialWord = selectedWord.InitialWord;
             }
-            return output;
+            return wordHidden;
         }//
 
-        public static Boolean FindLetterInWord(char letter, string word){
-            char[] charWord = word.ToCharArray();
+        public Word HideLettersSingleWord(Word selectedWord)
+        {
+            string selectedWordString = selectedWord.Value;
+            Word wordHidden = new Word();
+            wordHidden.Category = selectedWord.Category;
+
+            char [] input = selectedWordString.ToCharArray();
+            int maxIndex = input.Length;
+            char[] charoutput = new char[maxIndex];
+            string output = string.Empty;
+            for(int i = 0; i<maxIndex; i++){
+                if(i==0){charoutput[0] = input[i];}
+                else if(i==(maxIndex-1)){charoutput[i] = input[i];}
+                else{charoutput[i] = Convert.ToChar("-");}                
+            output = string.Join("", charoutput);
+            wordHidden.Value = output;
+            }
+            return wordHidden;
+        }//
+
+
+// public string HideLetters(int wordIndex, List<Word> words)
+//         {
+//             string selectedWord = PickRandomWordStartsWithLetter(wordIndex, words).Value;
+//             char [] input = selectedWord.ToCharArray();
+//             int maxIndex = input.Length;
+//             char[] charoutput = new char[maxIndex];
+//             string output = string.Empty;
+//             for(int i = 0; i<maxIndex; i++){
+//                 if(i==0){charoutput[0] = input[i];}
+//                 else if(i==(maxIndex-1)){charoutput[i] = input[i];}
+//                 else{charoutput[i] = Convert.ToChar("-");}                
+//             output = string.Join("", charoutput);
+//             }
+//             return output;
+//         }//
+
+
+         public Boolean FindLetterInWord(char letter, Word selectedWord){
+            char[] charWord = selectedWord.InitialWord.ToCharArray();
             int max = (charWord.Length-2);
             for(int i=1; i <= max; i++ ){
                 if (charWord[i] == letter){
@@ -115,8 +179,23 @@ namespace WordGuess
         return false;
         }//
 
-        public static string exposeLetters(char letter, string word){
-            char [] input = word.ToCharArray();
+        //  public Boolean FindLetterInWord(char letter, string word){
+        //     char[] charWord = word.ToCharArray();
+        //     int max = (charWord.Length-2);
+        //     for(int i=1; i <= max; i++ ){
+        //         if (charWord[i] == letter){
+        //             return true;
+        //         }
+        //     }       
+        // return false;
+        // }//
+
+        public  Word exposeLetters(char letter, Word selectedWord){
+            Word newWord = new Word();
+            newWord.Category = selectedWord.Category;
+            newWord.InitialWord = selectedWord.InitialWord;
+
+            char [] input = selectedWord.InitialWord.ToCharArray();
             int maxIndex = (input.Length-1);
             string output = string.Empty;
             for(int i = 1; i<maxIndex; i++){
@@ -124,11 +203,47 @@ namespace WordGuess
                     input[i] = Convert.ToChar("-");
                 }
             output = string.Join("", input);
+            newWord.Value = output;
             }       
-        return output;
+        return newWord;
         }
 
-        public static string exposeLetters(char letter, string word, string modifiedWord){
+        //  public  string exposeLetters(char letter, string word){
+        //     char [] input = word.ToCharArray();
+        //     int maxIndex = (input.Length-1);
+        //     string output = string.Empty;
+        //     for(int i = 1; i<maxIndex; i++){
+        //         if (input[i] != letter){
+        //             input[i] = Convert.ToChar("-");
+        //         }
+        //     output = string.Join("", input);
+        //     }       
+        // return output;
+        // }
+
+        public Word exposeLetters(char letter, Word word, string modifiedWord){
+            Word newWord = new Word();
+            newWord.Category = word.Category;
+            newWord.InitialWord = word.InitialWord;
+
+            char [] input = word.InitialWord.ToCharArray();
+            char [] modifiedInput = modifiedWord.ToCharArray();
+            int maxIndex = (input.Length-1);
+            string output = string.Empty;
+            for(int i = 1; i<maxIndex; i++){
+                if (input[i] != letter){
+                    if (modifiedInput[i] == Convert.ToChar("-")){
+                        input[i] = Convert.ToChar("-");
+                    }
+                }
+            output = string.Join("", input);
+            newWord.Value = output;
+            }       
+        return newWord;
+        }//
+
+        public  string exposeLetters(char letter, string word, string modifiedWord){
+            
             char [] input = word.ToCharArray();
             char [] modifiedInput = modifiedWord.ToCharArray();
             int maxIndex = (input.Length-1);

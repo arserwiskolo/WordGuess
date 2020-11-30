@@ -9,8 +9,6 @@ namespace WordGuess.Storage
     {        
         void Create(Player newPlayer);
         
-       // Player GetById(long PlayerId);
-
         List<Player> GetAll();
         
     }

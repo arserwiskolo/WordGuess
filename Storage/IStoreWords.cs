@@ -9,8 +9,6 @@ namespace WordGuess.Storage
     {
         void Create(Word newWord);
 
-        //Word GetById(long id);
-
         List<Word> GetByCategory(string category);
 
         List<Word> GetAll();
